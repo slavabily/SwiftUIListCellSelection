@@ -16,10 +16,11 @@ struct ClaimCell: View {
     
     var claim: Claim
     @Binding var selectedClaim: Claim?
+    @Binding var firstSelection: Claim?
     
     var body: some View {
         ZStack {
-            claim == selectedClaim ? Color.green : Color.white
+            claim == firstSelection ? Color.green : Color.white
             Text(claim.description)
                 .padding()
         }
@@ -28,10 +29,10 @@ struct ClaimCell: View {
 
 struct ContentView: View {
     
-    @State var selectedClaim: Claim?
-    
     @State var multiselection = Set<Claim>()
-        
+    @State var selectedClaim: Claim?
+    @State var firstSelection: Claim?
+ 
     var claims = [Claim(id: 0, description: "Value 1"),
                   Claim(id: 1, description: "Value 2"),
                   Claim(id: 2, description: "Value 3")]
@@ -40,7 +41,7 @@ struct ContentView: View {
         VStack {
             Spacer()
             List(claims, id: \.id) { claim in
-                ClaimCell(claim: claim, selectedClaim: self.$selectedClaim)
+                ClaimCell(claim: claim, selectedClaim: $selectedClaim, firstSelection: $firstSelection)
                     .onTapGesture {
                         selectedClaim = claim
                         
@@ -48,13 +49,15 @@ struct ContentView: View {
                         
                         if multiselection.contains(selectedClaim!) {
                             multiselection.remove(selectedClaim!)
+                            isSelected()
                         } else {
                             multiselection.insert(selectedClaim!)
+                            isSelected()
                         }
                     }
             }
                 .padding()
-                .frame(maxHeight:180)
+                .frame(maxHeight:250)
                 .background(Color.gray)
                 .cornerRadius(8)
             Text("Use : \(self.selectedClaim?.description ?? "none")").onTapGesture {
@@ -65,6 +68,17 @@ struct ContentView: View {
                 .onTapGesture {
                     print("\n \(multiselection.description)")
                 }
+        }
+    }
+    
+    func isSelected() {
+        if firstSelection != selectedClaim {
+            print("\n firstSelection is nil or not equal to claim")
+            firstSelection = selectedClaim
+            
+        } else {
+            print("\n firstSelection is equal to claim")
+            firstSelection = nil
         }
     }
 }
