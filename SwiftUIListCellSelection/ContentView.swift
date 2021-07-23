@@ -16,6 +16,7 @@ struct Claim: Equatable, Hashable {
     var description: String
 }
 
+
 struct ClaimCell: View {
     @ObservedObject var claimsSelection: ClaimsSelection
     @Binding var selectedClaim: Claim?
