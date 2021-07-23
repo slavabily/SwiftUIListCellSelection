@@ -9,6 +9,26 @@ import SwiftUI
 
 class ClaimsSelection: ObservableObject {
     @Published var multiselection = Set<Claim>()
+    
+    func isSelected(_ claim: Claim) -> Bool {
+        for _ in multiselection {
+            if multiselection.contains(claim) {
+                return true
+            } else {
+                return false
+            }
+        }
+        return false
+    }
+    
+    func selection(of claim: Claim) {
+         
+        if multiselection.contains(claim) {
+            multiselection.remove(claim)
+        } else {
+            multiselection.insert(claim)
+        }
+    }
 }
 
 struct Claim: Equatable, Hashable {
@@ -19,32 +39,20 @@ struct Claim: Equatable, Hashable {
 
 struct ClaimCell: View {
     @ObservedObject var claimsSelection: ClaimsSelection
-    @Binding var selectedClaim: Claim?
+     
     var claim: Claim
     
     var body: some View {
         ZStack {
-            isSelected() ? Color.green : Color.white
+            claimsSelection.isSelected(claim) ? Color.green : Color.white
             Text(claim.description)
                 .padding()
         }
-    }
-    
-    func isSelected() -> Bool {
-        for _ in claimsSelection.multiselection {
-            if claimsSelection.multiselection.contains(claim) {
-                return true
-            } else {
-                return false
-            }
-        }
-        return false
     }
 }
 
 struct ContentView: View {
     @StateObject var claimsSelection = ClaimsSelection()
-    @State var selectedClaim: Claim?
  
     var claims = [Claim(id: 0, description: "Value 1"),
                   Claim(id: 1, description: "Value 2"),
@@ -54,9 +62,9 @@ struct ContentView: View {
         VStack {
             Spacer()
             List(claims, id: \.id) { claim in
-                ClaimCell(claimsSelection: claimsSelection, selectedClaim: $selectedClaim, claim: claim)
+                ClaimCell(claimsSelection: claimsSelection, claim: claim)
                     .onTapGesture {
-                        selection(of: claim)
+                        claimsSelection.selection(of: claim)
                     }
             }
             .padding()
@@ -68,18 +76,6 @@ struct ContentView: View {
                 .onTapGesture {
                     print("\n \(claimsSelection.multiselection.description)")
                 }
-        }
-    }
-    
-    func selection(of claim: Claim) {
-        selectedClaim = claim
-        
-        guard selectedClaim != nil else { return }
-        
-        if claimsSelection.multiselection.contains(selectedClaim!) {
-            claimsSelection.multiselection.remove(selectedClaim!)
-        } else {
-            claimsSelection.multiselection.insert(selectedClaim!)
         }
     }
 }
