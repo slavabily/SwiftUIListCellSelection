@@ -7,31 +7,43 @@
 
 import SwiftUI
 
+class ClaimsSelection: ObservableObject {
+    @Published var multiselection = Set<Claim>()
+}
+
 struct Claim: Equatable, Hashable {
     var id: Int
     var description: String
 }
 
 struct ClaimCell: View {
-    
-    var claim: Claim
+    @ObservedObject var claimsSelection: ClaimsSelection
     @Binding var selectedClaim: Claim?
-    @Binding var firstSelection: Claim?
+    var claim: Claim
     
     var body: some View {
         ZStack {
-            claim == firstSelection ? Color.green : Color.white
+            isSelected() ? Color.green : Color.white
             Text(claim.description)
                 .padding()
         }
     }
+    
+    func isSelected() -> Bool {
+        for _ in claimsSelection.multiselection {
+            if claimsSelection.multiselection.contains(claim) {
+                return true
+            } else {
+                return false
+            }
+        }
+        return false
+    }
 }
 
 struct ContentView: View {
-    
-    @State var multiselection = Set<Claim>()
+    @StateObject var claimsSelection = ClaimsSelection()
     @State var selectedClaim: Claim?
-    @State var firstSelection: Claim?
  
     var claims = [Claim(id: 0, description: "Value 1"),
                   Claim(id: 1, description: "Value 2"),
@@ -41,19 +53,17 @@ struct ContentView: View {
         VStack {
             Spacer()
             List(claims, id: \.id) { claim in
-                ClaimCell(claim: claim, selectedClaim: $selectedClaim, firstSelection: $firstSelection)
+                ClaimCell(claimsSelection: claimsSelection, selectedClaim: $selectedClaim, claim: claim)
                     .onTapGesture {
                         selectedClaim = claim
                         
                         guard selectedClaim != nil else { return }
                         
-                        if multiselection.contains(selectedClaim!) {
-                            multiselection.remove(selectedClaim!)
-                            isSelected()
-                        } else {
-                            multiselection.insert(selectedClaim!)
-                            isSelected()
-                        }
+                        if claimsSelection.multiselection.contains(selectedClaim!) {
+                            claimsSelection.multiselection.remove(selectedClaim!)
+                         } else {
+                            claimsSelection.multiselection.insert(selectedClaim!)
+                         }
                     }
             }
                 .padding()
@@ -66,19 +76,8 @@ struct ContentView: View {
             Spacer()
             Text("Multiselection result")
                 .onTapGesture {
-                    print("\n \(multiselection.description)")
+                    print("\n \(claimsSelection.multiselection.description)")
                 }
-        }
-    }
-    
-    func isSelected() {
-        if firstSelection != selectedClaim {
-            print("\n firstSelection is nil or not equal to claim")
-            firstSelection = selectedClaim
-            
-        } else {
-            print("\n firstSelection is equal to claim")
-            firstSelection = nil
         }
     }
 }
