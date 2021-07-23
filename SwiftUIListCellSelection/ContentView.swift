@@ -55,29 +55,30 @@ struct ContentView: View {
             List(claims, id: \.id) { claim in
                 ClaimCell(claimsSelection: claimsSelection, selectedClaim: $selectedClaim, claim: claim)
                     .onTapGesture {
-                        selectedClaim = claim
-                        
-                        guard selectedClaim != nil else { return }
-                        
-                        if claimsSelection.multiselection.contains(selectedClaim!) {
-                            claimsSelection.multiselection.remove(selectedClaim!)
-                         } else {
-                            claimsSelection.multiselection.insert(selectedClaim!)
-                         }
+                        selection(of: claim)
                     }
             }
-                .padding()
-                .frame(maxHeight:250)
-                .background(Color.gray)
-                .cornerRadius(8)
-            Text("Use : \(self.selectedClaim?.description ?? "none")").onTapGesture {
-                print("Do something (eg go to detail view) with \(self.selectedClaim?.description ?? "none")")
-            }.padding()
+            .padding()
+            .frame(maxHeight:250)
+            .background(Color.gray)
+            .cornerRadius(8)
             Spacer()
-            Text("Multiselection result")
+            Text("Multiselection result: \(claimsSelection.multiselection.count) claims selected")
                 .onTapGesture {
                     print("\n \(claimsSelection.multiselection.description)")
                 }
+        }
+    }
+    
+    func selection(of claim: Claim) {
+        selectedClaim = claim
+        
+        guard selectedClaim != nil else { return }
+        
+        if claimsSelection.multiselection.contains(selectedClaim!) {
+            claimsSelection.multiselection.remove(selectedClaim!)
+        } else {
+            claimsSelection.multiselection.insert(selectedClaim!)
         }
     }
 }
